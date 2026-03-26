@@ -7,6 +7,7 @@
     "icon": "./assets/icon.png",
     "scheme": "clutch",
     "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,18 +18,14 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.clutch.app",
-      "infoPlist": {
-        "UIUserInterfaceStyle": "Dark"
-      }
+      "bundleIdentifier": "com.clutch.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D0F1A"
       },
-      "package": "com.clutch.app",
-      "userInterfaceStyle": "dark"
+      "package": "com.clutch.app"
     },
     "web": {
       "bundler": "metro",
@@ -37,19 +34,12 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-font",
-        {
-          "fonts": []
-        }
-      ],
+      "expo-font",
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
           "color": "#C8F04A",
-          "defaultChannel": "default",
-          "sounds": []
+          "defaultChannel": "default"
         }
       ]
     ],
