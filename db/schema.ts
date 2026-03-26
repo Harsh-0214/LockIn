@@ -1,78 +1,83 @@
-import { sqliteTable, text, real, integer } from 'drizzle-orm/sqlite-core';
+/**
+ * db/schema.ts
+ *
+ * Type definitions for Clutch's data models.
+ * Data is persisted via Zustand + AsyncStorage (see store/).
+ */
 
-export const weightEntries = sqliteTable('weight_entries', {
-  id: text('id').primaryKey(),
-  weight: real('weight').notNull(),
-  unit: text('unit').notNull(),
-  loggedAt: text('logged_at').notNull(),
-});
+export interface WeightEntry {
+  id: string;
+  weight: number;
+  unit: 'kg' | 'lbs';
+  loggedAt: string;
+}
 
-export const mealLogs = sqliteTable('meal_logs', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  calories: integer('calories').notNull(),
-  protein: real('protein'),
-  carbs: real('carbs'),
-  fat: real('fat'),
-  loggedAt: text('logged_at').notNull(),
-});
+export interface MealLog {
+  id: string;
+  name: string;
+  calories: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  loggedAt: string;
+}
 
-export const workoutSessions = sqliteTable('workout_sessions', {
-  id: text('id').primaryKey(),
-  type: text('type').notNull(),
-  durationMinutes: integer('duration_minutes').notNull(),
-  notes: text('notes'),
-  loggedAt: text('logged_at').notNull(),
-});
+export interface WorkoutSession {
+  id: string;
+  type: string;
+  durationMinutes: number;
+  notes?: string;
+  loggedAt: string;
+}
 
-export const notes = sqliteTable('notes', {
-  id: text('id').primaryKey(),
-  title: text('title'),
-  content: text('content').notNull(),
-  notebookId: text('notebook_id'),
-  pinned: integer('pinned').default(0),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
+export interface Note {
+  id: string;
+  title?: string;
+  content: string;
+  notebookId?: string;
+  pinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export const notebooks = sqliteTable('notebooks', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  color: text('color').notNull(),
-});
+export interface Notebook {
+  id: string;
+  name: string;
+  color: string;
+}
 
-export const calendarEvents = sqliteTable('calendar_events', {
-  id: text('id').primaryKey(),
-  title: text('title').notNull(),
-  startTime: text('start_time').notNull(),
-  endTime: text('end_time').notNull(),
-  category: text('category').notNull(),
-  repeat: text('repeat').default('none'),
-  alertOffset: integer('alert_offset'),
-  notes: text('notes'),
-  notificationId: text('notification_id'),
-});
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  category: string;
+  repeat: string;
+  alertOffset?: number;
+  notes?: string;
+  notificationId?: string;
+}
 
-export const habits = sqliteTable('habits', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  icon: text('icon').notNull(),
-  color: text('color').notNull(),
-  frequency: text('frequency').notNull(),
-  reminderTime: text('reminder_time'),
-  graceDay: integer('grace_day').default(0),
-  archived: integer('archived').default(0),
-  createdAt: text('created_at').notNull(),
-});
+export interface Habit {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  frequency: string;
+  reminderTime?: string;
+  graceDay: boolean;
+  archived: boolean;
+  createdAt: string;
+}
 
-export const habitLogs = sqliteTable('habit_logs', {
-  id: text('id').primaryKey(),
-  habitId: text('habit_id').notNull(),
-  completedAt: text('completed_at').notNull(),
-});
+export interface HabitLog {
+  id: string;
+  habitId: string;
+  completedAt: string;
+}
 
-export const waterLogs = sqliteTable('water_logs', {
-  id: text('id').primaryKey(),
-  glasses: integer('glasses').notNull(),
-  loggedAt: text('logged_at').notNull(),
-});
+export interface WaterLog {
+  id: string;
+  glasses: number;
+  loggedAt: string;
+}

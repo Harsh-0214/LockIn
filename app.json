@@ -44,13 +44,6 @@
         }
       ],
       [
-        "expo-sqlite",
-        {
-          "enableFTS": true,
-          "useSQLCipher": false
-        }
-      ],
-      [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",

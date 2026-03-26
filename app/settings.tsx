@@ -200,20 +200,16 @@ export default function SettingsScreen() {
       };
 
       const json = JSON.stringify(allData, null, 2);
-      const filename =
-        Platform.OS === 'ios'
-          ? `${require('expo-file-system').documentDirectory}clutch-export.json`
-          : `${require('expo-file-system').cacheDirectory}clutch-export.json`;
-
-      const FileSystem = require('expo-file-system');
-      await FileSystem.writeAsStringAsync(filename, json, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-
-      await Sharing.shareAsync(filename, {
-        mimeType: 'application/json',
-        dialogTitle: 'Export Clutch Data',
-      });
+      // Share JSON directly via expo-sharing (no file system write needed)
+      // Write to a temp path using expo-sharing's URL scheme
+      await Sharing.shareAsync(
+        `data:application/json;base64,${btoa(unescape(encodeURIComponent(json)))}`,
+        {
+          mimeType: 'application/json',
+          dialogTitle: 'Export Clutch Data',
+          UTI: 'public.json',
+        }
+      );
     } catch (err) {
       console.warn('[Settings] Export error:', err);
       Alert.alert('Export failed', 'Something went wrong while exporting your data.');
