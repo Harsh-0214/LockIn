@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { LineChart, BarChart } from 'react-native-gifted-charts';
+import Svg, { Polyline, Line, Rect, Text as SvgText } from 'react-native-svg';
 import { format, parseISO } from 'date-fns';
 
 import { colors } from '@/constants/colors';
@@ -43,6 +43,58 @@ const WORKOUT_TYPE_ICONS: Record<WorkoutType, string> = {
 };
 
 const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+// ─── SVG Charts ──────────────────────────────────────────────────────────────
+
+function WeightLineChart({ data }: { data: Array<{ weight: number; loggedAt: string }> }) {
+  const W = 300, H = 130, PAD = { top: 10, bottom: 28, left: 36, right: 10 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+  const vals = data.map((d) => d.weight);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const range = maxV - minV || 1;
+  const px = (i: number) => PAD.left + (i / (data.length - 1)) * chartW;
+  const py = (v: number) => PAD.top + chartH - ((v - minV) / range) * chartH;
+  const pts = data.map((d, i) => `${px(i)},${py(d.weight)}`).join(' ');
+  return (
+    <Svg width={W} height={H}>
+      <Line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + chartH} stroke={colors.border} strokeWidth={1} />
+      <Line x1={PAD.left} y1={PAD.top + chartH} x2={PAD.left + chartW} y2={PAD.top + chartH} stroke={colors.border} strokeWidth={1} />
+      <Polyline points={pts} fill="none" stroke={colors.accent} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+      {data.map((d, i) => (
+        <SvgText key={i} x={px(i)} y={H - 6} textAnchor="middle" fontSize={9} fill={colors.textMuted}>
+          {format(parseISO(d.loggedAt), 'M/d')}
+        </SvgText>
+      ))}
+    </Svg>
+  );
+}
+
+function WorkoutBarChart({ data, labels }: { data: number[]; labels: string[] }) {
+  const W = 300, H = 110, PAD = { top: 8, bottom: 24, left: 8, right: 8 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+  const maxV = Math.max(...data, 1);
+  const barW = (chartW / data.length) * 0.55;
+  const gap = chartW / data.length;
+  return (
+    <Svg width={W} height={H}>
+      {data.map((v, i) => {
+        const bh = (v / maxV) * chartH;
+        const bx = PAD.left + i * gap + (gap - barW) / 2;
+        const by = PAD.top + chartH - bh;
+        return (
+          <React.Fragment key={i}>
+            <Rect x={bx} y={by} width={barW} height={bh || 2} rx={3} fill={v > 0 ? colors.accent : colors.border} />
+            <SvgText x={bx + barW / 2} y={H - 6} textAnchor="middle" fontSize={10} fill={colors.textMuted}>
+              {labels[i]}
+            </SvgText>
+          </React.Fragment>
+        );
+      })}
+    </Svg>
+  );
+}
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
@@ -96,20 +148,6 @@ export default function BodyScreen() {
   );
   const last7 = sortedEntries.slice(0, 7).reverse();
   const currentWeight = sortedEntries[0]?.weight ?? 0;
-
-  // ── Weight chart data ──
-  const lineData = last7.map((e, i) => ({
-    value: e.weight,
-    label: format(parseISO(e.loggedAt), 'M/d'),
-    dataPointColor: colors.accent,
-  }));
-
-  // ── Bar chart data ──
-  const barData = weeklyWorkouts.map((mins, i) => ({
-    value: mins,
-    label: DAY_LABELS[i],
-    frontColor: mins > 0 ? colors.accent : colors.border,
-  }));
 
   // ── Handlers ──
 
@@ -232,26 +270,7 @@ export default function BodyScreen() {
         {/* Weight chart */}
         {last7.length >= 2 ? (
           <Card style={styles.chartCard}>
-            <LineChart
-              data={lineData}
-              width={280}
-              height={140}
-              color={colors.accent}
-              thickness={2}
-              dataPointsColor={colors.accent}
-              dataPointsRadius={4}
-              startFillColor={`${colors.accent}33`}
-              endFillColor={`${colors.accent}00`}
-              areaChart
-              curved
-              hideRules
-              xAxisColor={colors.border}
-              yAxisColor={colors.border}
-              yAxisTextStyle={{ color: colors.textMuted, fontSize: 10, fontFamily: typography.fontBody }}
-              xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 9, fontFamily: typography.fontBody }}
-              noOfSections={4}
-              backgroundColor={colors.surface}
-            />
+            <WeightLineChart data={last7} />
           </Card>
         ) : (
           <Card style={[styles.chartCard, styles.emptyChart]}>
@@ -404,22 +423,7 @@ export default function BodyScreen() {
         {/* Weekly bar chart */}
         <Card style={[styles.chartCard, { marginTop: 16 }]}>
           <Text style={styles.weeklyChartTitle}>This Week</Text>
-          <BarChart
-            data={barData}
-            width={280}
-            height={120}
-            barWidth={26}
-            spacing={12}
-            roundedTop
-            hideRules
-            xAxisColor={colors.border}
-            yAxisColor={colors.border}
-            yAxisTextStyle={{ color: colors.textMuted, fontSize: 10, fontFamily: typography.fontBody }}
-            xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 10, fontFamily: typography.fontBody }}
-            noOfSections={3}
-            backgroundColor={colors.surface}
-            labelWidth={20}
-          />
+          <WorkoutBarChart data={weeklyWorkouts} labels={DAY_LABELS} />
         </Card>
 
         <View style={{ height: 60 }} />
