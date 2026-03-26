@@ -2,9 +2,18 @@ const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
-// Force hermes-canary transforms — required for New Architecture (Fabric)
-// Expo Go SDK 54 requests hermes-stable in the URL but runs New Arch natively,
-// so we must override to hermes-canary so the JS bundle matches.
-config.transformer.unstable_transformProfile = 'hermes-canary';
+// Expo Go SDK 54 always requests "hermes-stable" in the bundle URL, but it
+// runs New Architecture (Fabric) natively. Serving a hermes-stable bundle to
+// a New Arch runtime causes "getDevServer is not a function" at startup.
+// Rewrite every incoming bundle request to use hermes-canary instead.
+config.server = {
+  ...config.server,
+  rewriteRequestUrl: (url) => {
+    return url.replace(
+      'unstable_transformProfile=hermes-stable',
+      'unstable_transformProfile=hermes-canary'
+    );
+  },
+};
 
 module.exports = config;
