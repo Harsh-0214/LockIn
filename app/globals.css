@@ -1,0 +1,75 @@
+/* /home/user/LockIn/app/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0D0F1A;
+  --surface: #161824;
+  --surface-elevated: #1E2030;
+  --border: #2A2D40;
+  --accent: #C8F04A;
+}
+
+html,
+body {
+  background-color: #0D0F1A;
+  color: #FFFFFF;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D0F1A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A2D40;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4A4D62;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2A2D40 #0D0F1A;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid #C8F04A;
+  outline-offset: 2px;
+}
+
+/* Remove default input styles */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Smooth transitions */
+a,
+button {
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
