@@ -76,7 +76,7 @@ export default function Modal({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            {(title !== undefined) && (
+            {title !== undefined && (
               <div className="flex items-center justify-between px-6 py-4 border-b border-bdr">
                 <h2 className="font-syne font-bold text-lg text-textPrimary">{title}</h2>
                 <button
