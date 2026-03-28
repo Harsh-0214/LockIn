@@ -1,6 +1,6 @@
+// /home/user/LockIn/store/useCalendarStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
 import { format, parseISO, getYear, getMonth, addDays } from 'date-fns';
 
 // ---------------------------------------------------------------------------
@@ -39,29 +39,23 @@ function genId(): string {
   return Math.random().toString(36).substr(2, 9);
 }
 
-/**
- * Build an ISO date-time string for the given YYYY-MM-DD date at HH:MM.
- * e.g. makeISO('2026-03-25', 9, 30) → '2026-03-25T09:30:00.000Z' (local)
- */
 function makeISO(dateStr: string, hour: number, minute = 0): string {
   const d = new Date(dateStr);
   d.setHours(hour, minute, 0, 0);
   return d.toISOString();
 }
 
-// Today and nearby dates (anchored to 2026-03-25)
-const TODAY = '2026-03-25';
+// Today and nearby dates
+const TODAY = format(new Date(), 'yyyy-MM-dd');
 const tomorrow = format(addDays(new Date(TODAY), 1), 'yyyy-MM-dd');
 const dayAfter = format(addDays(new Date(TODAY), 2), 'yyyy-MM-dd');
 const inThreeDays = format(addDays(new Date(TODAY), 3), 'yyyy-MM-dd');
-const yesterday = format(addDays(new Date(TODAY), -1), 'yyyy-MM-dd');
 
 // ---------------------------------------------------------------------------
-// Seed events — 5 realistic events mixed across today and this week
+// Seed events
 // ---------------------------------------------------------------------------
 
 const seedEvents: CalendarEvent[] = [
-  // ── 1. Work: Team standup — today ────────────────────────────────────────
   {
     id: genId(),
     title: 'Team Standup',
@@ -72,8 +66,6 @@ const seedEvents: CalendarEvent[] = [
     alertOffset: 5,
     notes: 'Share progress on the Clutch beta release. Mention the notification system PR.',
   },
-
-  // ── 2. Health: Gym session — today ───────────────────────────────────────
   {
     id: genId(),
     title: 'Gym Session',
@@ -84,8 +76,6 @@ const seedEvents: CalendarEvent[] = [
     alertOffset: 15,
     notes: 'Pull day — deadlifts, rows, pull-ups. Target: 4 working sets each.',
   },
-
-  // ── 3. Personal: Dinner with family — tomorrow ───────────────────────────
   {
     id: genId(),
     title: 'Dinner with Family',
@@ -96,8 +86,6 @@ const seedEvents: CalendarEvent[] = [
     alertOffset: 60,
     notes: 'Book a table at La Piazza — call ahead, it gets busy on Thursdays.',
   },
-
-  // ── 4. Work: Product review — day after tomorrow ─────────────────────────
   {
     id: genId(),
     title: 'Product Review — Q2 Roadmap',
@@ -108,8 +96,6 @@ const seedEvents: CalendarEvent[] = [
     alertOffset: 30,
     notes: 'Prepare slides on habit tracker UX and onboarding funnel metrics.',
   },
-
-  // ── 5. Personal: Weekend run — 3 days from now ────────────────────────────
   {
     id: genId(),
     title: 'Morning Run — 5 km',
@@ -164,14 +150,9 @@ export const useCalendarStore = create<CalendarState>()(
       // Selectors
       // -----------------------------------------------------------------------
 
-      /**
-       * Returns all events that fall on the given YYYY-MM-DD date.
-       * Handles 'daily', 'weekly', and 'monthly' repeating events as well.
-       */
       getEventsForDate: (date) => {
         const { events } = get();
         const target = new Date(date);
-        // Normalise to midnight local time for day comparison
         target.setHours(0, 0, 0, 0);
 
         return events.filter((e) => {
@@ -197,15 +178,10 @@ export const useCalendarStore = create<CalendarState>()(
         });
       },
 
-      /**
-       * Returns all events that have at least one occurrence within the given
-       * calendar month (1-indexed month, e.g. March = 3).
-       */
       getEventsForMonth: (year, month) => {
         const { events } = get();
-        // month is 1-indexed; Date months are 0-indexed
         const monthStart = new Date(year, month - 1, 1);
-        const monthEnd = new Date(year, month, 0); // last day of month
+        const monthEnd = new Date(year, month, 0);
 
         return events.filter((e) => {
           const start = new Date(e.startTime);
@@ -218,7 +194,6 @@ export const useCalendarStore = create<CalendarState>()(
           }
 
           if (e.repeat === 'daily') {
-            // Ongoing daily event started before or during this month
             return start <= monthEnd;
           }
 
@@ -236,7 +211,6 @@ export const useCalendarStore = create<CalendarState>()(
     }),
     {
       name: 'clutch-calendar-store',
-      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

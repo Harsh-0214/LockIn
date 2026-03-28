@@ -1,6 +1,6 @@
+// /home/user/LockIn/store/useUserStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -108,7 +108,6 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'clutch-user-store',
-      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

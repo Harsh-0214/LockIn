@@ -1,3 +1,4 @@
+// /home/user/LockIn/constants/quotes.ts
 export interface Quote {
   quote: string;
   author: string;

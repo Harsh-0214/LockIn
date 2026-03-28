@@ -1,5 +1,5 @@
 /* /home/user/LockIn/app/globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -72,4 +72,30 @@ input[type='number'] {
 a,
 button {
   transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Input base styles */
+input,
+textarea,
+select {
+  background-color: #1E2030;
+  border: 1px solid #2A2D40;
+  border-radius: 0.75rem;
+  color: #FFFFFF;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0.625rem 0.875rem;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #C8F04A;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #4A4D62;
 }

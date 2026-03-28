@@ -1,6 +1,6 @@
+// /home/user/LockIn/store/useNotesStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -63,11 +63,10 @@ const seedNotebooks: Notebook[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Seed notes  (4 realistic notes, varied topics, one pinned)
+// Seed notes
 // ---------------------------------------------------------------------------
 
 const seedNotes: Note[] = [
-  // ── 1. Pinned: Workout program (Health notebook) ──────────────────────────
   {
     id: genId(),
     title: '12-Week Strength Program',
@@ -108,8 +107,6 @@ Notes: Sleep 8 h minimum. Protein target 2 g/kg BW.`,
     createdAt: isoOffset(14, 9),
     updatedAt: isoOffset(2, 18),
   },
-
-  // ── 2. Q2 goals (Personal notebook) ──────────────────────────────────────
   {
     id: genId(),
     title: 'Q2 Goals — 2026',
@@ -139,8 +136,6 @@ Quarterly review date: June 25, 2026`,
     createdAt: isoOffset(7, 8),
     updatedAt: isoOffset(1, 11),
   },
-
-  // ── 3. Grocery list (Personal notebook) ──────────────────────────────────
   {
     id: genId(),
     title: 'Grocery Run – This Week',
@@ -184,8 +179,6 @@ Budget: ~€65`,
     createdAt: isoOffset(1, 7),
     updatedAt: isoOffset(0, 9),
   },
-
-  // ── 4. Book recommendations (Personal notebook) ───────────────────────────
   {
     id: genId(),
     title: 'Books to Read — 2026',
@@ -284,7 +277,6 @@ export const useNotesStore = create<NotesState>()(
       deleteNotebook: (id) => {
         set((state) => ({
           notebooks: state.notebooks.filter((nb) => nb.id !== id),
-          // Detach notes that belonged to this notebook
           notes: state.notes.map((n) =>
             n.notebookId === id ? { ...n, notebookId: undefined } : n
           ),
@@ -312,7 +304,6 @@ export const useNotesStore = create<NotesState>()(
     }),
     {
       name: 'clutch-notes-store',
-      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

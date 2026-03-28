@@ -1,6 +1,6 @@
+// /home/user/LockIn/store/useBodyStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
 import { format, subDays, startOfWeek, isSameDay, parseISO } from 'date-fns';
 
 // ---------------------------------------------------------------------------
@@ -76,10 +76,6 @@ function todayISO(offsetHours = 0): string {
 // Seed data
 // ---------------------------------------------------------------------------
 
-/**
- * 7 weight entries over the past 7 days.
- * Weights drift slightly around 78–79 kg for realism.
- */
 const seedWeightEntries: WeightEntry[] = (() => {
   const weights = [79.2, 78.8, 79.0, 78.6, 78.9, 78.4, 78.7];
   return Array.from({ length: 7 }, (_, i) => {
@@ -94,7 +90,6 @@ const seedWeightEntries: WeightEntry[] = (() => {
   });
 })();
 
-/** 3 meals already logged for today. */
 const seedMealLogs: MealLog[] = [
   {
     id: genId(),
@@ -125,7 +120,6 @@ const seedMealLogs: MealLog[] = [
   },
 ];
 
-/** 1 workout session logged for today. */
 const seedWorkoutSessions: WorkoutSession[] = [
   {
     id: genId(),
@@ -260,7 +254,6 @@ export const useBodyStore = create<BodyState>()(
 
       getWeeklyWorkouts: () => {
         const { workoutSessions } = get();
-        // Returns 7 values (Mon=0 … Sun=6) representing total workout minutes per day.
         const now = new Date();
         const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
         const result = Array(7).fill(0);
@@ -279,7 +272,6 @@ export const useBodyStore = create<BodyState>()(
     }),
     {
       name: 'clutch-body-store',
-      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

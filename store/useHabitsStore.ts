@@ -1,6 +1,6 @@
+// /home/user/LockIn/store/useHabitsStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
 import {
   format,
   subDays,
@@ -17,7 +17,7 @@ import {
 export interface Habit {
   id: string;
   name: string;
-  icon: string; // Ionicons name
+  icon: string;
   color: string;
   /**
    * 'daily' means every day.
@@ -134,7 +134,7 @@ const seedHabits: Habit[] = [
   {
     id: HABIT_IDS.water,
     name: 'Drink Water',
-    icon: 'water-outline',
+    icon: 'droplets',
     color: '#38BDF8',
     frequency: 'daily',
     reminderTime: '08:00',
@@ -145,7 +145,7 @@ const seedHabits: Habit[] = [
   {
     id: HABIT_IDS.noSugar,
     name: 'No Sugar',
-    icon: 'nutrition',
+    icon: 'leaf',
     color: '#4ADE80',
     frequency: 'daily',
     graceDay: true,
@@ -156,11 +156,6 @@ const seedHabits: Habit[] = [
 
 // ---------------------------------------------------------------------------
 // Seed habit logs
-//
-//  • Morning Workout  → 14 consecutive days including today  (streak = 14)
-//  • Read 30 Min      →  7 consecutive days including today  (streak =  7)
-//  • Drink Water      →  5 consecutive days including today  (streak =  5)
-//  • No Sugar         →  3 consecutive days including today  (streak =  3)
 // ---------------------------------------------------------------------------
 
 function buildSeedLogs(): HabitLog[] {
@@ -256,7 +251,6 @@ export const useHabitsStore = create<HabitsState>()(
 
       // -----------------------------------------------------------------------
       // Streak: consecutive scheduled days completed, counting backwards from today.
-      // Non-scheduled days are transparent (do not break the streak).
       // -----------------------------------------------------------------------
       getCurrentStreak: (habitId) => {
         const { habitLogs, habits } = get();
@@ -273,11 +267,11 @@ export const useHabitsStore = create<HabitsState>()(
 
         for (let i = 0; i <= 365; i++) {
           const d = dateStr(i);
-          if (!isScheduledForDate(habit, d)) continue; // skip non-scheduled days
+          if (!isScheduledForDate(habit, d)) continue;
           if (completed.has(d)) {
             streak++;
           } else {
-            break; // first missed scheduled day ends the streak
+            break;
           }
         }
 
@@ -285,7 +279,7 @@ export const useHabitsStore = create<HabitsState>()(
       },
 
       // -----------------------------------------------------------------------
-      // Longest streak ever: scan all days from habit creation to today.
+      // Longest streak ever
       // -----------------------------------------------------------------------
       getLongestStreak: (habitId) => {
         const { habitLogs, habits } = get();
@@ -299,7 +293,6 @@ export const useHabitsStore = create<HabitsState>()(
         );
         if (completed.size === 0) return 0;
 
-        // Determine how many days to scan from creation to today
         const createdAt = parseISO(habit.createdAt);
         const totalDays =
           Math.ceil(
@@ -309,7 +302,6 @@ export const useHabitsStore = create<HabitsState>()(
         let longest = 0;
         let current = 0;
 
-        // Scan oldest → newest (high daysAgo → 0)
         for (let i = totalDays - 1; i >= 0; i--) {
           const d = dateStr(i);
           if (!isScheduledForDate(habit, d)) continue;
@@ -325,8 +317,7 @@ export const useHabitsStore = create<HabitsState>()(
       },
 
       // -----------------------------------------------------------------------
-      // Completion rate: proportion of scheduled days completed in the last N days.
-      // Returns a value between 0 and 1.
+      // Completion rate
       // -----------------------------------------------------------------------
       getCompletionRate: (habitId, days) => {
         const { habitLogs, habits } = get();
@@ -353,8 +344,7 @@ export const useHabitsStore = create<HabitsState>()(
       },
 
       // -----------------------------------------------------------------------
-      // Month log: returns YYYY-MM-DD strings for completed days in a month.
-      // month is 1-indexed (January = 1).
+      // Month log
       // -----------------------------------------------------------------------
       getHabitLogsForMonth: (habitId, year, month) => {
         const { habitLogs } = get();
@@ -368,7 +358,7 @@ export const useHabitsStore = create<HabitsState>()(
       },
 
       // -----------------------------------------------------------------------
-      // Today's active habits (non-archived and scheduled for today)
+      // Today's active habits
       // -----------------------------------------------------------------------
       getTodayHabits: () => {
         const { habits } = get();
@@ -391,7 +381,6 @@ export const useHabitsStore = create<HabitsState>()(
     }),
     {
       name: 'clutch-habits-store',
-      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );
