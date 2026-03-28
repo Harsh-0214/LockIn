@@ -5,15 +5,18 @@ import type { CalendarEvent } from '../store/useCalendarStore';
 
 // ---------------------------------------------------------------------------
 // Configure how notifications are handled when the app is foregrounded
+// (Not supported on web)
 // ---------------------------------------------------------------------------
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,6 +47,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   // Check existing permission status on mount (do not prompt yet)
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     (async () => {
       try {
         const { status } = await Notifications.getPermissionsAsync();
@@ -58,6 +62,7 @@ export function useNotifications(): UseNotificationsReturn {
   // requestPermission
   // -------------------------------------------------------------------------
   const requestPermission = useCallback(async (): Promise<boolean> => {
+    if (Platform.OS === 'web') return false;
     try {
       // On Android 13+ we need to explicitly request POST_NOTIFICATIONS.
       // expo-notifications handles this via requestPermissionsAsync.
@@ -94,6 +99,7 @@ export function useNotifications(): UseNotificationsReturn {
   // -------------------------------------------------------------------------
   const scheduleEventNotification = useCallback(
     async (event: CalendarEvent): Promise<string | null> => {
+      if (Platform.OS === 'web') return null;
       // Guard: need permission
       if (!hasPermission) {
         const granted = await requestPermission();
@@ -141,6 +147,7 @@ export function useNotifications(): UseNotificationsReturn {
   // -------------------------------------------------------------------------
   const cancelNotification = useCallback(
     async (notificationId: string): Promise<void> => {
+      if (Platform.OS === 'web') return;
       try {
         await Notifications.cancelScheduledNotificationAsync(notificationId);
       } catch {

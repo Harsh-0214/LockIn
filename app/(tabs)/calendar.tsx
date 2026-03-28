@@ -56,6 +56,7 @@ async function scheduleEventNotification(
   startTimeISO: string,
   alertOffsetMinutes: number
 ): Promise<string | null> {
+  if (Platform.OS === 'web') return null;
   try {
     const trigger = new Date(new Date(startTimeISO).getTime() - alertOffsetMinutes * 60 * 1000);
     if (trigger.getTime() <= Date.now()) return null;
@@ -598,8 +599,9 @@ export default function CalendarScreen() {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [notifPermission, setNotifPermission] = useState<'granted' | 'denied' | 'undetermined'>('undetermined');
 
-  // Request notification permissions on mount
+  // Request notification permissions on mount (native only)
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     (async () => {
       const { status } = await Notifications.requestPermissionsAsync();
       setNotifPermission(status as any);

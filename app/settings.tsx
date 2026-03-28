@@ -125,8 +125,9 @@ export default function SettingsScreen() {
   // Avatar picker modal
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
 
-  // Check notification permission on mount
+  // Check notification permission on mount (native only)
   React.useEffect(() => {
+    if (Platform.OS === 'web') return;
     Notifications.getPermissionsAsync().then((result) => {
       if (result.granted) {
         setNotifStatus('granted');
@@ -178,18 +179,13 @@ export default function SettingsScreen() {
   );
 
   const handleRequestNotifPermission = useCallback(async () => {
+    if (Platform.OS === 'web') return;
     const result = await Notifications.requestPermissionsAsync();
     setNotifStatus(result.granted ? 'granted' : 'denied');
   }, []);
 
   const handleExportData = useCallback(async () => {
     try {
-      const isAvailable = await Sharing.isAvailableAsync();
-      if (!isAvailable) {
-        Alert.alert('Sharing not available', 'Sharing is not available on this device.');
-        return;
-      }
-
       const allData = {
         user: useUserStore.getState(),
         notes: useNotesStore.getState(),
@@ -200,8 +196,25 @@ export default function SettingsScreen() {
       };
 
       const json = JSON.stringify(allData, null, 2);
-      // Share JSON directly via expo-sharing (no file system write needed)
-      // Write to a temp path using expo-sharing's URL scheme
+
+      if (Platform.OS === 'web') {
+        // Web: trigger a file download via a temporary anchor element
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `clutch-export-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert('Sharing not available', 'Sharing is not available on this device.');
+        return;
+      }
+
       await Sharing.shareAsync(
         `data:application/json;base64,${btoa(unescape(encodeURIComponent(json)))}`,
         {
